@@ -1,0 +1,337 @@
+_cfg_dict:
+    value:
+        base_seed: 0
+        datasets:
+            test:
+                dataset_type: carotid_cod_te
+                path:
+                    carotid_val:
+                        image:
+                            path: original
+                            suffix: .png
+                        mask:
+                            path: gt
+                            suffix: _gt.png
+                        root: /fileser51/miqing/carotid/dataset_risnet/val
+                shape:
+                    h: 384
+                    w: 384
+            train:
+                dataset_type: carotid_cod_tr
+                path:
+                    carotid_train:
+                        image:
+                            path: original
+                            suffix: .png
+                        mask:
+                            path: gt
+                            suffix: _gt.png
+                        root: /fileser51/miqing/carotid/dataset_risnet/train
+                shape:
+                    h: 384
+                    w: 384
+        deterministic: true
+        excel_logger: <utils.recorder.excel_recorder.MetricExcelRecorder object at 0x7f183097bbe0>
+        exp_name: ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP
+        experiment_tag: ""
+        has_test: true
+        load_from: ""
+        log_interval:
+            txt: 20
+            wandb: 200
+        model_name: ZoomNet
+        output_dir: /home/miqing/ZoomNet/output
+        path:
+            cfg_copy: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/cfg_2024-09-20 17:36:04.260412.py
+            excel: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/results.xlsx
+            final_full_net: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/pth/checkpoint_final.pth
+            final_state_net: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/pth/state_final.pth
+            output_dir: /home/miqing/ZoomNet/output
+            pth: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/pth
+            pth_log: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP
+            save: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/pre
+            tb: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/tb
+            te_log: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/te_2024-09-20.txt
+            tr_log: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/tr_2024-09-20.txt
+            trainer_copy: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/trainer_2024-09-20 17:36:04.260415.txt
+            trans_log: /home/miqing/ZoomNet/output/ZoomNet_BS8_LR0.005_E100_H384_W384_OPMsgd_OPGMfinetune_SCf3_AMP/trans_2024-09-20.txt
+        proj_root: /home/miqing/ZoomNet
+        resume_from: ""
+        te_logger: <utils.recorder.msg_logger.TxtLogger object at 0x7f183097bd00>
+        test:
+            batch_size: 8
+            clip_range: null
+            eval_func: default_test
+            num_workers: 4
+            show_bar: false
+            tta:
+                cfg:
+                    Add:
+                        values:
+                            - 0
+                            - 10
+                            - 20
+                    FiveCrops:
+                        crop_height: 224
+                        crop_width: 224
+                    Multiply:
+                        factors:
+                            - 1
+                            - 2
+                            - 5
+                    Resize:
+                        align_corners: false
+                        interpolation: bilinear
+                        original_size: 224
+                        sizes:
+                            - 0.75
+                            - 1
+                            - 1.5
+                    Rotate90:
+                        angles:
+                            - 0
+                            - 90
+                            - 180
+                            - 270
+                    Scale:
+                        align_corners: false
+                        interpolation: bilinear
+                        scales:
+                            - 0.75
+                            - 1
+                            - 1.5
+                enable: false
+                reducation: mean
+        tr_logger: <utils.recorder.msg_logger.TxtLogger object at 0x7f183097bbb0>
+        train:
+            batch_size: 8
+            ema:
+                cmp_with_origin: true
+                decay: 0.9998
+                enable: false
+                force_cpu: false
+            epoch_based: true
+            grad_acc_step: 1
+            grad_clip:
+                enable: false
+                mode: value
+            lr: 0.005
+            ms:
+                enable: false
+                extra_scales:
+                    - 0.75
+                    - 1.25
+                    - 1.5
+            num_epochs: 100
+            num_iters: 30000
+            num_workers: 4
+            optimizer:
+                cfg:
+                    momentum: 0.9
+                    nesterov: false
+                    weight_decay: 0.0005
+                group_mode: finetune
+                mode: sgd
+                set_to_none: true
+            save_num_models: 1
+            sche_usebatch: true
+            scheduler:
+                cfg:
+                    lr_decay: 0.9
+                    min_coef: 0.001
+                mode: f3
+                warmup:
+                    initial_coef: 0.01
+                    mode: linear
+                    num_iters: 0
+            use_amp: true
+        use_custom_worker_init: false
+        use_ddp: false
+_filename:
+    value: ./configs/zoomnet/cod_zoomnet.py
+_text:
+    value: |
+        /home/miqing/ZoomNet/configs/_base_/common.py
+        has_test = True
+        base_seed = 0
+        deterministic = True
+
+        log_interval = dict(  # >0 will be logged
+            txt=20,
+            wandb=200,
+        )
+        load_from = ""
+        resume_from = ""
+        model_name = ""
+        experiment_tag = ""
+
+        /home/miqing/ZoomNet/configs/_base_/train.py
+        train = dict(
+            batch_size=10,
+            num_workers=4,
+            use_amp=True,
+            num_epochs=100,
+            num_iters=30000,
+            epoch_based=True,
+            lr=0.0001,
+            optimizer=dict(
+                mode="adamw",
+                set_to_none=True,
+                group_mode="r3",  # ['trick', 'r3', 'all', 'finetune'],
+                cfg=dict(),
+            ),
+            grad_acc_step=1,
+            sche_usebatch=True,
+            scheduler=dict(
+                warmup=dict(
+                    num_iters=0,
+                ),
+                mode="poly",
+                cfg=dict(
+                    lr_decay=0.9,
+                    min_coef=0.001,
+                ),
+            ),
+            save_num_models=1,
+            ms=dict(
+                enable=False,
+                extra_scales=[0.75, 1.25, 1.5],
+            ),
+            grad_clip=dict(
+                enable=False,
+                mode="value",  # or 'norm'
+                cfg=dict(),
+            ),
+            ema=dict(
+                enable=False,
+                cmp_with_origin=True,
+                force_cpu=False,
+                decay=0.9998,
+            ),
+        )
+
+        /home/miqing/ZoomNet/configs/_base_/test.py
+        test = dict(
+            batch_size=8,
+            num_workers=2,
+            eval_func="default_test",
+            clip_range=None,
+            tta=dict(  # based on the ttach lib
+                enable=False,
+                reducation="mean",  # 'mean', 'gmean', 'sum', 'max', 'min', 'tsharpen'
+                cfg=dict(
+                    HorizontalFlip=dict(),
+                    VerticalFlip=dict(),
+                    Rotate90=dict(angles=[0, 90, 180, 270]),
+                    Scale=dict(
+                        scales=[0.75, 1, 1.5],
+                        interpolation="bilinear",
+                        align_corners=False,
+                    ),
+                    Add=dict(values=[0, 10, 20]),
+                    Multiply=dict(factors=[1, 2, 5]),
+                    FiveCrops=dict(crop_height=224, crop_width=224),
+                    Resize=dict(
+                        sizes=[0.75, 1, 1.5],
+                        original_size=224,
+                        interpolation="bilinear",
+                        align_corners=False,
+                    ),
+                ),
+            ),
+        )
+
+        /home/miqing/ZoomNet/configs/zoomnet/cod_zoomnet.py
+        _base_ = [
+            "../_base_/common.py",
+            "../_base_/train.py",
+            "../_base_/test.py",
+        ]
+
+        has_test = True
+        deterministic = True
+        use_custom_worker_init = False
+        model_name = "ZoomNet"
+
+        train = dict(
+            batch_size=8,
+            num_workers=4,
+            use_amp=True,
+            num_epochs=100,
+            epoch_based=True,
+            lr=0.005,
+            optimizer=dict(
+                mode="sgd",
+                set_to_none=True,
+                group_mode="finetune",
+                cfg=dict(
+                    momentum=0.9,
+                    weight_decay=5e-4,
+                    nesterov=False,
+                ),
+            ),
+            sche_usebatch=True,
+            scheduler=dict(
+                warmup=dict(
+                    num_iters=0,
+                    initial_coef=0.01,
+                    mode="linear",
+                ),
+                mode="f3",
+                cfg=dict(
+                    lr_decay=0.9,
+                    min_coef=0.001,
+                ),
+            ),
+        )
+
+        test = dict(
+            batch_size=8,
+            num_workers=4,
+            show_bar=False,
+        )
+
+        datasets = dict(
+            train=dict(
+                dataset_type="carotid_cod_tr",
+                shape=dict(h=384, w=384),
+                path=["carotid_train"],
+                interp_cfg=dict(),
+            ),
+            test=dict(
+                dataset_type="carotid_cod_te",
+                shape=dict(h=384, w=384),
+                path=["carotid_val"],
+                interp_cfg=dict(),
+            ),
+        )
+_wandb:
+    value:
+        cli_version: 0.18.0
+        m: []
+        python_version: 3.8.19
+        t:
+            "1":
+                - 1
+                - 41
+                - 49
+                - 55
+                - 63
+                - 80
+            "2":
+                - 1
+                - 41
+                - 49
+                - 55
+                - 63
+                - 80
+            "3":
+                - 16
+                - 23
+                - 55
+            "4": 3.8.19
+            "5": 0.18.0
+            "8":
+                - 5
+            "12": 0.18.0
+            "13": linux-x86_64

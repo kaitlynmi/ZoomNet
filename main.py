@@ -18,7 +18,7 @@ def parse_config():
     parser = argparse.ArgumentParser("Training and evaluation script")
     parser.add_argument("--config", default="./configs/zoomnet/zoomnet.py", type=str)
     parser.add_argument("--datasets-info", default="./configs/_base_/dataset/dataset_configs.json", type=str)
-    parser.add_argument("--model-name", type=str)
+    parser.add_argument("--model-name", default = "ZoomNet", type=str)
     parser.add_argument("--batch-size", type=int)
     parser.add_argument("--load-from", type=str)
     parser.add_argument("--resume-from", type=str)
@@ -249,15 +249,15 @@ def training(model, cfg) -> pipeline.ModelEma:
                 )
                 cfg.tr_logger.record(msg)
 
-            if cfg.log_interval.tensorboard > 0 and (
-                    curr_iter % cfg.log_interval.tensorboard == 0
+            if cfg.log_interval.wandb > 0 and (
+                    curr_iter % cfg.log_interval.wandb == 0
                     or (curr_iter + 1) % cfg.epoch_length == 0
                     or (curr_iter + 1) == cfg.train.num_iters
             ):
-                cfg.tb_logger.record_curve("iter_loss", item_loss, curr_iter)
-                cfg.tb_logger.record_curve("lr", optimizer.lr_groups(), curr_iter)
-                cfg.tb_logger.record_curve("avg_loss", loss_recorder.avg, curr_iter)
-                cfg.tb_logger.record_images(dict(**probs, **batch_data), curr_iter)
+                cfg.wandb_logger.record_curve("iter_loss", item_loss, curr_iter)
+                cfg.wandb_logger.record_curve("lr", optimizer.lr_groups(), curr_iter)
+                cfg.wandb_logger.record_curve("avg_loss", loss_recorder.avg, curr_iter)
+                cfg.wandb_logger.record_images(dict(**probs, **batch_data), curr_iter)
 
             if curr_iter < 3:  # plot some batches of the training phase
                 recorder.plot_results(
@@ -311,8 +311,8 @@ def main():
     cfg.excel_logger = recorder.MetricExcelRecorder(
         xlsx_path=cfg.path.excel, dataset_names=sorted([x for x in cfg.datasets.test.path.keys()])
     )
-    if cfg.log_interval.tensorboard > 0:
-        cfg.tb_logger = recorder.TBRecorder(tb_path=cfg.path.tb)
+    if cfg.log_interval.wandb > 0:
+        cfg.wandb_logger = recorder.WandbRecorder(project_name="ZoomNet", config=cfg)
 
     if cfg.base_seed >= 0:
         cfg.tr_logger.record(f"{cfg.proj_root} with base_seed {cfg.base_seed}")

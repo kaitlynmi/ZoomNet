@@ -69,16 +69,21 @@ def get_datasets_info_with_keys(dataset_infos: list, extra_keys: list) -> dict:
         infos = {}
         for k in total_keys:
             assert k in dataset_info, f"{k} is not in {dataset_info}"
+            assert "path" in dataset_info[k], f"{path} is not in {dataset_info}:{k}"
             infos[k] = dict(dir=os.path.join(dataset_root, dataset_info[k]["path"]), ext=dataset_info[k]["suffix"])
 
+        print(f"Loading dataset from {dataset_info['root']}")
         if (index_file_path := dataset_info.get("index_file", None)) is not None:
             image_names = get_data_from_txt(index_file_path)
         else:
             image_names = get_name_list_from_dir(infos["image"]["dir"])
 
+        print(f"Found {len(image_names)} images in {infos['image']['dir']}")
+
         if "mask" in total_keys:
             mask_names = get_name_list_from_dir(infos["mask"]["dir"])
-            image_names = _get_intersection(image_names, mask_names)
+            print(f"Found {len(mask_names)} masks in {infos['mask']['dir']}")
+            # image_names = _get_intersection(image_names, mask_names)
 
         for i, name in enumerate(image_names):
             for k in total_keys:
@@ -89,6 +94,7 @@ def get_datasets_info_with_keys(dataset_infos: list, extra_keys: list) -> dict:
         prev_num = len(path_collection["image"])
         _get_info(dataset_info=dataset_info, extra_keys=extra_keys, path_collection=path_collection)
         curr_num = len(path_collection["image"])
+        print(f'{curr_num} - {prev_num}')
         print(f"Loading data from {dataset_name}: {dataset_info['root']} ({curr_num - prev_num})")
     return path_collection
 

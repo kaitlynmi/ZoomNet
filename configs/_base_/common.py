@@ -4,7 +4,7 @@ deterministic = True
 
 log_interval = dict(  # >0 will be logged
     txt=20,
-    tensorboard=0,
+    wandb=200,
 )
 load_from = ""
 resume_from = ""

@@ -1,4 +1,14 @@
 {
+  "carotid_train": {
+    "root": "/fileser51/miqing/carotid/dataset_risnet/train",
+    "image": {"path": "original", "suffix": ".png"}, 
+    "mask": {"path": "gt", "suffix": "_gt.png"}
+  },
+  "carotid_val": {
+    "root": "/fileser51/miqing/carotid/dataset_risnet/val",
+    "image": {"path": "original", "suffix": ".png"},
+    "mask": {"path": "gt", "suffix": "_gt.png"}
+  },
   "dutstr": {
     "root": "/home/lart/Datasets/Saliency/RGBSOD/DUTS/Train",
     "image": {
