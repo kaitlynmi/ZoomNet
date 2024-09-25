@@ -72,6 +72,7 @@ class Carotid_TestDataset(_BaseSODDataset):
         mask_path = self.total_mask_paths[index]
 
         image = read_color_array(image_path)
+        mask = read_gray_array(mask_path, to_normalize=True, thr=0.5)
 
         image = self.image_norm(image=image)["image"]
 
@@ -82,11 +83,15 @@ class Carotid_TestDataset(_BaseSODDataset):
         image_1_0 = torch.from_numpy(images[1]).permute(2, 0, 1)
         image_1_5 = torch.from_numpy(images[2]).permute(2, 0, 1)
 
+        mask = ss_resize(mask, scale=1.0, base_h=base_h, base_w=base_w)
+        mask_1_0 = torch.from_numpy(mask).unsqueeze(0)
+
         return dict(
             data={
                 "image1.5": image_1_5,
                 "image1.0": image_1_0,
                 "image0.5": image_0_5,
+                "mask": mask_1_0,
             },
             info=dict(
                 image_path=image_path,

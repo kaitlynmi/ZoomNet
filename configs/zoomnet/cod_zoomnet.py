@@ -15,7 +15,7 @@ train = dict(
     use_amp=True,
     num_epochs=200,
     epoch_based=True,
-    lr=0.001,
+    lr=0.005,
     optimizer=dict(
         mode="sgd",
         set_to_none=True,
@@ -55,33 +55,54 @@ val = dict(
 test = dict(
     batch_size=1,
     num_workers=2,
-    show_bar=False,
+    show_bar=True,
     evaluate=False,
 )
+
+# datasets = dict(
+#     train=dict(
+#         dataset_type="carotid_cod_tr",
+#         shape=dict(h=384, w=384),
+#         path=["carotid_train"],
+#         interp_cfg=dict(),
+#     ),
+#     val=dict(
+#         dataset_type="carotid_cod_val",
+#         shape=dict(h=384, w=384),
+#         path=["carotid_val"],
+#         interp_cfg=dict(),
+#     ),
+#     # test=dict(
+#     #     dataset_type="carotid_cod_te",
+#     #     shape=dict(h=384, w=384),
+#     #     path=["carotid_val"],
+#     #     interp_cfg=dict(),
+#     # ),
+#     test=dict(
+#         dataset_type="carotid_cod_te_img",
+#         shape=dict(h=384, w=384),  # Resize to 384x384
+#         path=["carotid_ak_84"],
+#         interp_cfg=dict(),
+#     ),
+# )
 
 datasets = dict(
     train=dict(
         dataset_type="carotid_cod_tr",
         shape=dict(h=384, w=384),
-        path=["carotid_train"],
+        path=["thyroid_train"],
         interp_cfg=dict(),
     ),
     val=dict(
         dataset_type="carotid_cod_val",
         shape=dict(h=384, w=384),
-        path=["carotid_val"],
+        path=["thyroid_val"],
         interp_cfg=dict(),
     ),
     test=dict(
         dataset_type="carotid_cod_te",
         shape=dict(h=384, w=384),
-        path=["carotid_val"],
+        path=["thyroid_test"],
         interp_cfg=dict(),
     ),
-    # test=dict(
-    #     dataset_type="carotid_cod_te_img",
-    #     shape=dict(h=384, w=384),  # Resize to 384x384
-    #     path=["carotid_ak_84"],
-    #     interp_cfg=dict(),
-    # ),
 )

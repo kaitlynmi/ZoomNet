@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 class MetricsCalculator:
     def __init__(self, threshold=0.5):
@@ -18,6 +19,17 @@ class MetricsCalculator:
         self.fp = 0  # False Positives
         self.fn = 0  # False Negatives
         self.tn = 0  # True Negatives
+        
+    def update_from_numpy(self, pred: np.ndarray, gt: np.ndarray):
+        assert pred.shape == gt.shape
+        
+        preds = (pred >= self.threshold).astype(np.int64)  # Convert to int
+        gt = gt.astype(np.int64)  # Ensure ground truth is also int
+
+        self.tp += np.sum((preds == 1) & (gt == 1))
+        self.fp += np.sum((preds == 1) & (gt == 0))
+        self.fn += np.sum((preds == 0) & (gt == 1))
+        self.tn += np.sum((preds == 0) & (gt == 0))
 
     def update(self, outputs, targets):
         """

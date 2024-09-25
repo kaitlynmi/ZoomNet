@@ -385,10 +385,10 @@ def training(model, cfg) -> pipeline.ModelEma:
             if curr_iter >= cfg.train.num_iters:
                 break
             
-            # only save the last weight
-            io.save_weight(model=model, save_path=cfg.path.final_state_net)
-            # cfg.tr_logger.record(f"Best Performance on: Epoch {best_epoch} with Val Loss {best_val_loss}")
-            return model_ema
+        # only save the last weight
+        io.save_weight(model=model, save_path=cfg.path.final_state_net)
+        # cfg.tr_logger.record(f"Best Performance on: Epoch {best_epoch} with Val Loss {best_val_loss}")
+        return model_ema
     except KeyboardInterrupt:
         cfg.tr_logger.record("Training interrupted. Saving model weights...")
         io.save_weight(model=model, save_path=cfg.path.final_state_net)

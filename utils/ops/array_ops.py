@@ -75,11 +75,6 @@ def save_array_as_image(data_array: np.ndarray, save_name: str, save_dir: str, t
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     save_path = os.path.join(save_dir, save_name)
-
-    # print(f"Saving image at: {save_path}")
-    # print(f"Image shape: {data_array.shape}")
-    # print(f"Data type: {data_array.dtype}")
-    # print(f"Min value: {data_array.min()}, Max value: {data_array.max()}")
     if data_array.dtype != np.uint8:
         if data_array.max() > 1:
             raise Exception("the range of data_array has some errors")

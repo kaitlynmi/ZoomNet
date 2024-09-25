@@ -13,6 +13,21 @@
     "root": "/home/miqing/data/ak_84case_1080P",
     "image": {"path": "ak_84case_1080P", "suffix": ".png"}
   },
+  "thyroid_train": {
+    "root": "/home/miqing/data/thyroid/ThyroidNoduleSeg_crop_filled_20221122_1080p/train",
+    "image": {"path": "images", "suffix": ".jpg"},
+    "mask": {"path": "masks", "suffix": ".jpg"}
+  },
+  "thyroid_val": {
+    "root": "/home/miqing/data/thyroid/ThyroidNoduleSeg_crop_filled_20221122_1080p/val",
+    "image": {"path": "images", "suffix": ".jpg"},
+    "mask": {"path": "masks", "suffix": ".jpg"}
+  },
+  "thyroid_test": {
+    "root": "/home/miqing/data/thyroid/ThyroidNoduleSeg_crop_filled_20221122_1080p/test",
+    "image": {"path": "images", "suffix": ".jpg"},
+    "mask": {"path": "masks", "suffix": ".jpg"}
+  },
   "dutstr": {
     "root": "/home/lart/Datasets/Saliency/RGBSOD/DUTS/Train",
     "image": {
