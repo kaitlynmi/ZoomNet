@@ -11,3 +11,4 @@ from .wandb import WandbRecorder
 # from .tensorboard import TBRecorder
 from .timer import TimeRecoder
 from .visualize_results import plot_results
+from .metrics import MetricsCalculator

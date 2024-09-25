@@ -5,6 +5,7 @@ deterministic = True
 log_interval = dict(  # >0 will be logged
     txt=20,
     wandb=200,
+    save_checkpoint = 10,
 )
 load_from = ""
 resume_from = ""

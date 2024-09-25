@@ -54,6 +54,7 @@ def construct_path(output_dir: str, exp_name: str) -> dict:
 
     tr_log_path = os.path.join(pth_log_path, f"tr_{str(datetime.now())[:10]}.txt")
     te_log_path = os.path.join(pth_log_path, f"te_{str(datetime.now())[:10]}.txt")
+    val_log_path = os.path.join(pth_log_path, f"val_{str(datetime.now())[:10]}.txt")
     trans_log_path = os.path.join(pth_log_path, f"trans_{str(datetime.now())[:10]}.txt")
     cfg_copy_path = os.path.join(pth_log_path, f"cfg_{str(datetime.now())}.py")
     trainer_copy_path = os.path.join(pth_log_path, f"trainer_{str(datetime.now())}.txt")
@@ -69,6 +70,7 @@ def construct_path(output_dir: str, exp_name: str) -> dict:
         "final_state_net": final_state_path,
         "tr_log": tr_log_path,
         "te_log": te_log_path,
+        "val_log": val_log_path,
         "trans_log": trans_log_path,
         "cfg_copy": cfg_copy_path,
         "excel": excel_path,

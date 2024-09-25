@@ -4,7 +4,7 @@ import argparse
 import json
 import os
 import os.path
-
+import cv2
 import numpy as np
 import torch
 from tqdm import tqdm
@@ -14,14 +14,18 @@ from utils import builder, configurator, io, misc, ops, pipeline, recorder
 
 def parse_config():
     parser = argparse.ArgumentParser("Training and evaluation script")
-    parser.add_argument("--config", default="./configs/zoomnet/zoomnet.py", type=str)
+    parser.add_argument("--config", default="./configs/zoomnet/cod_zoomnet.py", type=str)
     parser.add_argument("--datasets-info", default="./configs/_base_/dataset/dataset_configs.json", type=str)
-    parser.add_argument("--model-name", type=str)
-    parser.add_argument("--batch-size", type=int)
-    parser.add_argument("--load-from", type=str)
+    parser.add_argument("--model-name", default="ZoomNet", type=str)
+    parser.add_argument("--batch-size", default=4, type=int)
+    parser.add_argument("--load-from", type=str)  # trained weight
     parser.add_argument("--save-path", type=str)
     parser.add_argument("--minmax-results", action="store_true")
     parser.add_argument("--info", type=str)
+    parser.add_argument("--threshold", type=float)
+    parser.add_argument("--evaluate")  # Flag for evaluation
+    parser.add_argument("--output-option", type=str, choices=["mask", "overlay"], default="mask", 
+                        help="Choose between outputting the prediction masks or mask overlay on original image")
     args = parser.parse_args()
 
     config = configurator.Configurator.fromfile(args.config)
@@ -43,6 +47,13 @@ def parse_config():
             os.makedirs(args.save_path)
     config.save_path = args.save_path
     config.test.to_minmax = args.minmax_results
+    config.evaluate = args.evaluate is not None  # Store evaluation flag in config
+    config.output_option = args.output_option  # Store output option in config
+    if args.threshold is not None:
+        assert args.threshold < 1 and args.threshold >=0 
+        config.threshold = args.threshold
+    else: 
+        config.threshold = None
 
     with open(args.datasets_info, encoding="utf-8", mode="r") as f:
         datasets_info = json.load(f)
@@ -59,6 +70,57 @@ def parse_config():
     return config
 
 
+def overlay_mask_on_image(image, mask, alpha=0.5):
+    """Utility function to overlay a mask on the original image"""
+    color_mask = np.zeros_like(image)
+    color_mask[:, :, 1] = mask  # Green color for mask overlay
+    overlayed_image = cv2.addWeighted(image, 1.0, color_mask, alpha, 0)
+    return overlayed_image
+
+
+import argparse
+import json
+import os
+import os.path
+
+import numpy as np
+import torch
+from tqdm import tqdm
+
+import cv2
+
+from utils import builder, configurator, io, misc, ops, pipeline, recorder
+
+
+def denormalize_image(image_tensor):
+    """
+    Reverses the normalization of an image tensor and converts it to a NumPy array.
+    Adjust the mean and std according to your preprocessing.
+    """
+    mean = np.array([0.485, 0.456, 0.406])  # Replace with your dataset's mean
+    std = np.array([0.229, 0.224, 0.225])   # Replace with your dataset's std
+
+    image_np = image_tensor.numpy().transpose(1, 2, 0)  # From CxHxW to HxWxC
+    image_np = (image_np * std + mean) * 255.0
+    image_np = np.clip(image_np, 0, 255).astype(np.uint8)
+    return image_np
+
+
+def overlay_mask_on_image(image, mask, alpha=0.5):
+    """Utility function to overlay a mask on the original image"""
+    # Ensure the mask is single-channel
+    if len(mask.shape) == 3:
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+
+    # Create a color mask (e.g., green overlay)
+    color_mask = np.zeros_like(image)
+    color_mask[:, :, 1] = mask  # Apply mask to the green channel
+
+    # Overlay the mask onto the image
+    overlayed_image = cv2.addWeighted(image, 1.0, color_mask, alpha, 0)
+    return overlayed_image
+
+
 def test_once(
     model,
     data_loader,
@@ -68,9 +130,13 @@ def test_once(
     show_bar=False,
     desc="[TE]",
     to_minmax=False,
+    evaluate=True,
+    output_option="mask",
+    threshold = 0.1,
 ):
     model.is_training = False
-    cal_total_seg_metrics = recorder.CalTotalMetric()
+    if evaluate:
+        cal_total_seg_metrics = recorder.CalTotalMetric()
 
     pgr_bar = enumerate(data_loader)
     if show_bar:
@@ -86,26 +152,43 @@ def test_once(
         probs = logits.sigmoid().squeeze(1).cpu().detach().numpy()
 
         for i, pred in enumerate(probs):
-            mask_path = batch["info"]["mask_path"][i]
-            mask_array = io.read_gray_array(mask_path, dtype=np.uint8)
-            mask_h, mask_w = mask_array.shape
+            image_path = batch["info"]["image_path"][i]
+            image = io.read_color_array(image_path)
+            image_h, image_w = image.shape[:2]
 
-            # here, sometimes, we can resize the prediciton to the shape of the mask's shape
-            pred = ops.imresize(pred, target_h=mask_h, target_w=mask_w, interp="linear")
-
-            if clip_range is not None:
-                pred = ops.clip_to_normalize(pred, clip_range=clip_range)
+            # Resize prediction to match the image size
+            pred = ops.imresize(pred, target_h=image_h, target_w=image_w, interp="linear")
 
             if to_minmax:
                 pred = ops.minmax(pred)
 
-            if save_path:  # 这里的save_path包含了数据集名字
-                ops.save_array_as_image(data_array=pred, save_name=os.path.basename(mask_path), save_dir=save_path)
+            if threshold is None:
+                pred_uint8 = (pred * 255).astype(np.uint8)
+            else:
+                pred_binary = (pred >= threshold).astype(np.uint8)
+                pred_uint8 = (pred_binary * 255).astype(np.uint8)
 
-            pred = (pred * 255).astype(np.uint8)
-            cal_total_seg_metrics.step(pred, mask_array, mask_path)
-    fixed_seg_results = cal_total_seg_metrics.get_results()
-    return fixed_seg_results
+            # Handle output based on the selected option
+            if output_option == "mask":
+                save_name = os.path.basename(image_path)
+                ops.save_array_as_image(data_array=pred_uint8, save_name=save_name, save_dir=save_path)
+                # cv2.imwrite(os.path.join(save_path, save_name), pred_uint8)
+
+            elif output_option == "overlay":
+                overlayed_image = overlay_mask_on_image(image, pred_uint8)
+                save_name = os.path.basename(image_path)
+                ops.save_array_as_image(data_array=overlayed_image, save_name=save_name, save_dir=save_path)
+                # cv2.imwrite(os.path.join(save_path, save_name), overlayed_image)
+            # Evaluate if needed
+            if evaluate:
+                mask_path = batch["info"]["mask_path"][i]
+                mask_array = io.read_gray_array(mask_path, dtype=np.uint8)
+                cal_total_seg_metrics.step(pred_uint8, mask_array, mask_path)
+
+    if evaluate:
+        fixed_seg_results = cal_total_seg_metrics.get_results()
+        return fixed_seg_results
+    return None
 
 
 @torch.no_grad()
@@ -123,8 +206,14 @@ def testing(model, cfg):
             clip_range=cfg.test.clip_range,
             show_bar=cfg.test.get("show_bar", False),
             to_minmax=cfg.test.get("to_minmax", False),
+            evaluate=cfg.evaluate,  # Pass the evaluate flag
+            output_option=cfg.output_option,  # Pass the output option
+            threshold = cfg.threshold
         )
-        print(f"Results on the testset({data_name}): {misc.mapping_to_str(data_path)}\n{seg_results}")
+        if cfg.evaluate and seg_results:
+            print(f"Results on the testset({data_name}): {misc.mapping_to_str(data_path)}\n{seg_results}")
+        else:
+            print(f"Testing without evaluation on the dataset {data_name}")
 
 
 def main():
@@ -144,3 +233,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

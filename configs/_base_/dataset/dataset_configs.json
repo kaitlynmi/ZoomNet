@@ -9,6 +9,10 @@
     "image": {"path": "original", "suffix": ".png"},
     "mask": {"path": "gt", "suffix": "_gt.png"}
   },
+  "carotid_ak_84": {
+    "root": "/home/miqing/data/ak_84case_1080P",
+    "image": {"path": "ak_84case_1080P", "suffix": ".png"}
+  },
   "dutstr": {
     "root": "/home/lart/Datasets/Saliency/RGBSOD/DUTS/Train",
     "image": {

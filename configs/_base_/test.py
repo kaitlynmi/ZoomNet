@@ -1,5 +1,5 @@
 test = dict(
-    batch_size=8,
+    batch_size=4,
     num_workers=2,
     eval_func="default_test",
     clip_range=None,
@@ -27,3 +27,23 @@ test = dict(
         ),
     ),
 )
+# test = dict(
+#     clip_range=None,
+#     tta=dict(
+#         enable=False,
+#         reducation="mean",
+#         cfg=dict(
+#             Scale=dict(
+#                 scales=[1],  # Use a scale of 1 to avoid resizing
+#                 interpolation="bilinear",
+#                 align_corners=False,
+#             ),
+#             Resize=dict(
+#                 sizes=[(1080, 1920)],  # Use the original size
+#                 original_size=(1080, 1920),
+#                 interpolation="bilinear",
+#                 align_corners=False,
+#             ),
+#         ),
+#     ),
+# )

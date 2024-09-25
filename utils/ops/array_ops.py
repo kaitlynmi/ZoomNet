@@ -75,14 +75,26 @@ def save_array_as_image(data_array: np.ndarray, save_name: str, save_dir: str, t
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     save_path = os.path.join(save_dir, save_name)
+
+    # print(f"Saving image at: {save_path}")
+    # print(f"Image shape: {data_array.shape}")
+    # print(f"Data type: {data_array.dtype}")
+    # print(f"Min value: {data_array.min()}, Max value: {data_array.max()}")
     if data_array.dtype != np.uint8:
         if data_array.max() > 1:
-            raise Exception("the range of data_array has smoe errors")
+            raise Exception("the range of data_array has some errors")
         data_array = (data_array * 255).astype(np.uint8)
     if to_minmax:
         data_array = minmax(data_array, up_bound=255)
         data_array = (data_array * 255).astype(np.uint8)
-    cv2.imwrite(save_path, data_array)
+    # Attempt to save the image using cv2.imwrite
+    success = cv2.imwrite(save_path, data_array)
+    
+    # Debugging: Check if the image was saved successfully
+    if not success:
+        print(f"Failed to save image at {save_path}")
+    else:
+        print(f"Image saved successfully at {save_path}")
 
 
 def imresize(image_array: np.ndarray, target_h, target_w, interp="linear"):
