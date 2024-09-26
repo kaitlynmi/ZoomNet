@@ -9,6 +9,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import time
 
 from utils import builder, configurator, io, misc, ops, pipeline, recorder
 
@@ -52,7 +53,7 @@ def parse_config():
     else:
         config.save_path = None
     config.test.to_minmax = args.minmax_results
-    config.evaluate = args.evaluate is not None  # Store evaluation flag in config
+    # config.evaluate = args.evaluate is not None  # Store evaluation flag in config
     if args.threshold is not None:
         assert args.threshold < 1 and args.threshold >=0 
         config.threshold = args.threshold
@@ -125,12 +126,10 @@ def test_once(
     model.is_training = False
     if evaluate:
         cal_total_seg_metrics = recorder.CalTotalMetric()
-        # loss_recorder = recorder.AvgMeter()
-        # metrics_calculator = recorder.MetricsCalculator()
-        # loss_recorder.reset()
-        # metrics_calculator.reset()
+        metrics_calculator = recorder.TestMetricsCalculator()
         if threshold is None: threshold = 0.1 
 
+    total_infer_times = []
     pgr_bar = enumerate(data_loader)
     if show_bar:
         pgr_bar = tqdm(pgr_bar, total=len(data_loader), ncols=79, desc=desc)
@@ -143,7 +142,11 @@ def test_once(
                 model=model, data=batch_images, strategy=tta_setting.strategy, reducation=tta_setting.reduction
             )
         else:
-            logits = model(data=batch_images)      
+            start_time = time.time()  # Start time measurement
+            logits = model(data=batch_images)
+            end_time = time.time()  # End time measurement
+            total_infer_times.append(end_time - start_time) 
+                
         probs = logits.sigmoid().squeeze(1).cpu().detach().numpy()
 
         for i, pred in enumerate(probs):
@@ -177,14 +180,14 @@ def test_once(
                     # Compute true positives and false positives
                     true_positive = (pred_binary & mask_array) * 255
                     false_positive = (pred_binary & (~mask_array)) * 255
-                    # false_negative = ((~pred_binary) & mask_array)* 255
+                    false_negative = ((~pred_binary) & mask_array)* 255
 
                     # Overlaying based on evaluation
                     overlayed_image_tp = overlay_mask_on_image(image, true_positive, color='green')  # Green for TP
                     overlayed_image_fp = overlay_mask_on_image(overlayed_image_tp, false_positive, color='red')  # Red for FP
-                    # overlayed_image_fn = overlay_mask_on_image(overlayed_image_fp, false_negative, color='blue')
+                    overlayed_image_fn = overlay_mask_on_image(overlayed_image_fp, false_negative, color='blue')
                     save_name = os.path.basename(image_path)
-                    ops.save_array_as_image(data_array=overlayed_image_fp, save_name=save_name, save_dir=save_path)
+                    ops.save_array_as_image(data_array=overlayed_image_fn, save_name=save_name, save_dir=save_path)
                 else: 
                     overlayed_image = overlay_mask_on_image(image, pred_uint8)
                     save_name = os.path.basename(image_path)
@@ -194,15 +197,17 @@ def test_once(
                 mask_path = batch["info"]["mask_path"][i]
                 mask_array = io.read_gray_array(mask_path, dtype=np.uint8)
                 cal_total_seg_metrics.step(pred_uint8, mask_array, mask_path)
-                # metrics_calculator.update_from_numpy(pred_uint8, mask_array)
+                metrics_calculator.update(pred_binary, mask_array)
 
     if evaluate:
         fixed_seg_results = cal_total_seg_metrics.get_results()
-        # metrics = metrics_calculator.compute_metrics()
-        # if metrics:
-        #     metrics_str = ' | '.join([f'{k}: {v:.4f}' for k, v in metrics.items()])
-        #     print(f"Metrics: {metrics_str}")
+        metrics_results = metrics_calculator.get_metrics()
+        if metrics_results:
+            metrics_str = ' | '.join([f'{k}: {v:.4f}' for k, v in metrics_results.items()])
+            print(f"Metrics: {metrics_str}")
+        print("=== Avg Inference time: {:.2f} ms ===".format(np.mean(total_infer_times) * 1000))
         return fixed_seg_results
+    print("=== Avg Inference time: {:.2f} ms ===".format(np.mean(total_infer_times) * 1000))
     return None
 
 

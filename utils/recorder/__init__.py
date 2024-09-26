@@ -12,3 +12,4 @@ from .wandb import WandbRecorder
 from .timer import TimeRecoder
 from .visualize_results import plot_results
 from .metrics import MetricsCalculator
+from .metrics_test import TestMetricsCalculator

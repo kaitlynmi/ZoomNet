@@ -59,50 +59,56 @@ test = dict(
     evaluate=False,
 )
 
-# datasets = dict(
-#     train=dict(
-#         dataset_type="carotid_cod_tr",
-#         shape=dict(h=384, w=384),
-#         path=["carotid_train"],
-#         interp_cfg=dict(),
-#     ),
-#     val=dict(
-#         dataset_type="carotid_cod_val",
-#         shape=dict(h=384, w=384),
-#         path=["carotid_val"],
-#         interp_cfg=dict(),
-#     ),
-#     # test=dict(
-#     #     dataset_type="carotid_cod_te",
-#     #     shape=dict(h=384, w=384),
-#     #     path=["carotid_val"],
-#     #     interp_cfg=dict(),
-#     # ),
-#     test=dict(
-#         dataset_type="carotid_cod_te_img",
-#         shape=dict(h=384, w=384),  # Resize to 384x384
-#         path=["carotid_ak_84"],
-#         interp_cfg=dict(),
-#     ),
-# )
-
 datasets = dict(
     train=dict(
         dataset_type="carotid_cod_tr",
         shape=dict(h=384, w=384),
-        path=["thyroid_train"],
+        path=["carotid_train"],
         interp_cfg=dict(),
     ),
     val=dict(
         dataset_type="carotid_cod_val",
         shape=dict(h=384, w=384),
-        path=["thyroid_val"],
+        path=["carotid_val"],
         interp_cfg=dict(),
     ),
+    # test=dict(
+    #     dataset_type="carotid_cod_te",
+    #     shape=dict(h=384, w=384),
+    #     path=["carotid_val"],
+    #     interp_cfg=dict(),
+    # # ),
+    # test=dict(
+    #     dataset_type="carotid_cod_te_img",
+    #     shape=dict(h=384, w=384),  # Resize to 384x384
+    #     path=["carotid_ak_84"],
+    #     interp_cfg=dict(),
+    # ),
     test=dict(
         dataset_type="carotid_cod_te",
         shape=dict(h=384, w=384),
-        path=["thyroid_test"],
+        path=["thyroid_gland_test"],
         interp_cfg=dict(),
     ),
 )
+
+# datasets = dict(
+#     train=dict(
+#         dataset_type="carotid_cod_tr",
+#         shape=dict(h=384, w=384),
+#         path=["thyroid_gland_train"],
+#         interp_cfg=dict(),
+#     ),
+#     val=dict(
+#         dataset_type="carotid_cod_val",
+#         shape=dict(h=384, w=384),
+#         path=["thyroid_gland_val"],
+#         interp_cfg=dict(),
+#     ),
+#     test=dict(
+#         dataset_type="carotid_cod_te",
+#         shape=dict(h=384, w=384),
+#         path=["thyroid_gland_test"],
+#         interp_cfg=dict(),
+#     ),
+# )

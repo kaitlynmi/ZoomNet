@@ -28,6 +28,21 @@
     "image": {"path": "images", "suffix": ".jpg"},
     "mask": {"path": "masks", "suffix": ".jpg"}
   },
+  "thyroid_gland_train": {
+    "root": "/home/miqing/data/thyroid/train13000with1000negAndothers/train",
+    "image": {"path": "images", "suffix": ".jpg"},
+    "mask": {"path": "masks", "suffix": ".jpg"}
+  },
+  "thyroid_gland_val": {
+    "root": "/home/miqing/data/thyroid/train13000with1000negAndothers/val",
+    "image": {"path": "images", "suffix": ".jpg"},
+    "mask": {"path": "masks", "suffix": ".jpg"}
+  },
+  "thyroid_gland_test": {
+    "root": "/home/miqing/data/thyroid/train13000with1000negAndothers/test",
+    "image": {"path": "images", "suffix": ".jpg"},
+    "mask": {"path": "masks", "suffix": ".jpg"}
+  },
   "dutstr": {
     "root": "/home/lart/Datasets/Saliency/RGBSOD/DUTS/Train",
     "image": {

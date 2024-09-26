@@ -4,11 +4,11 @@ import shutil
 
 def main(dataset_path):
     # Dataset path
-    images_folder = os.path.join(dataset_path, 'images1080p')
-    masks_folder = os.path.join(dataset_path, 'masks1080p')
+    images_folder = os.path.join(dataset_path, 'images/train')
+    masks_folder = os.path.join(dataset_path, 'masks/train')
     
     # Output path
-    output_path = "/home/miqing/data/thyroid/ThyroidNoduleSeg_crop_filled_20221122_1080p"
+    output_path = "/home/miqing/data/thyroid/train13000with1000negAndothers"
     sets_division = {'train': 1600, 'val': 400, 'test': 400}
 
     # Get list of all image files
@@ -41,10 +41,25 @@ def main(dataset_path):
             # Copy image
             shutil.copy(os.path.join(images_folder, file), os.path.join(output_images_path, file))
             print(f"Saved ({count}/{num}) {os.path.join(output_images_path, file)}")
-            # Copy corresponding mask
-            shutil.copy(os.path.join(masks_folder, file), os.path.join(output_masks_path, file))
+
+            # Check for corresponding mask files
+            mask_file_with_suffix = file.replace('.jpg', '_mask.jpg') 
+            mask_file_without_suffix = file  # Use the image filename directly
+            
+            mask_copied = False
+            # Try to copy the mask with the suffix first
+            if os.path.exists(os.path.join(masks_folder, mask_file_with_suffix)):
+                shutil.copy(os.path.join(masks_folder, mask_file_with_suffix), os.path.join(output_masks_path, file))
+                mask_copied = True
+            # If not found, try the filename without the suffix
+            elif os.path.exists(os.path.join(masks_folder, mask_file_without_suffix)):
+                shutil.copy(os.path.join(masks_folder, mask_file_without_suffix), os.path.join(output_masks_path, file))
+                mask_copied = True
+            # Optionally log if a mask was not found
+            if not mask_copied:
+                print(f"Warning: No mask found for {file}")
             print(f"Saved ({count}/{num}) {os.path.join(output_masks_path, file)}")
             count+=1
 
 if __name__ == '__main__':
-    main('/home/zhangys/thyroidNodule_segmentation/data/thyroidNodule/ThyroidNoduleSeg_crop_filled_20221122_1080p/1080p')
+    main('/home/zhangys/thyroidNodule_segmentation/data/Thyroid/train13000with1000negAndothers')

@@ -21,7 +21,7 @@ def parse_config():
     parser.add_argument("--datasets-info", default="./configs/_base_/dataset/dataset_configs.json", type=str)
     parser.add_argument("--model-name", default = "ZoomNet", type=str)
     parser.add_argument("--batch-size", default = 4, type=int)
-    parser.add_argument("--load-from", type=str) # trained weight
+    parser.add_argument("--load-from", type=str)
     parser.add_argument("--resume-from", type=str)
     parser.add_argument("--info", type=str)
     args = parser.parse_args()
@@ -334,18 +334,19 @@ def training(model, cfg) -> pipeline.ModelEma:
                     io.save_weight(model=model, save_path=best_path)
                     best_val_loss = val_loss
                     best_epoch = curr_epoch
+                    best_metrics = epoch_metrics
 
             # Save checkpoint every M epochs
-            if (curr_epoch + 1) % cfg.log_interval.save_checkpoint == 0:
-                checkpoint_path = os.path.join(cfg.path.pth, f'state_epoch_{curr_epoch + 1}.pth')
-                io.save_weight(model=model, save_path=checkpoint_path)
-                if model_ema is not None:
-                    ema_checkpoint_path = os.path.join(cfg.path.pth, f'state_epoch_{curr_epoch + 1}_ema.pth')
-                    io.save_weight(model=model_ema.module, save_path=ema_checkpoint_path)
+            # if (curr_epoch + 1) % cfg.log_interval.save_checkpoint == 0:
+            #     checkpoint_path = os.path.join(cfg.path.pth, f'state_epoch_{curr_epoch + 1}.pth')
+            #     io.save_weight(model=model, save_path=checkpoint_path)
+            #     if model_ema is not None:
+            #         ema_checkpoint_path = os.path.join(cfg.path.pth, f'state_epoch_{curr_epoch + 1}_ema.pth')
+            #         io.save_weight(model=model_ema.module, save_path=ema_checkpoint_path)
                 
 
             # log sample images
-            if curr_epoch % 2 == 0:  
+            if curr_epoch % 5 == 0:  
                 # plot some batches of the training phase, save in path
                 # path = os.path.join(cfg.path.pth_log, f"train_epoch_{curr_epoch}.png")
                 # recorder.plot_results(

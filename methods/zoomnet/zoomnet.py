@@ -167,6 +167,17 @@ def cal_ual(seg_logits, seg_gts):
     loss_map = 1 - (2 * sigmoid_x - 1).abs().pow(2)
     return loss_map.mean()
 
+def cal_dice(seg_logits, seg_gts):
+    assert seg_logits.shape == seg_gts.shape, (seg_logits.shape, seg_gts.shape)
+    eps = 1e-7
+    pred = seg_logits.sigmoid().view(-1)
+    gt = seg_gts.view(-1)
+    
+    tp = (pred * gt).sum()
+    dice_coeff = (2 * tp + eps) / (pred.sum() + gt.sum() + eps)
+    
+    return 1 - dice_coeff
+
 
 @MODELS.register()
 class ZoomNet(BasicModelClass):
@@ -224,6 +235,7 @@ class ZoomNet(BasicModelClass):
             all_preds=output,
             gts=data["mask"],
             iter_percentage=kwargs["curr"]["iter_percentage"],
+            dice_weight = 0.07
         )
         return dict(sal=output["seg"].sigmoid()), loss, loss_str
 
@@ -235,7 +247,7 @@ class ZoomNet(BasicModelClass):
         )
         return output["seg"]
 
-    def cal_loss(self, all_preds: dict, gts: torch.Tensor, method="cos", iter_percentage: float = 0):
+    def cal_loss(self, all_preds: dict, gts: torch.Tensor, method="cos", iter_percentage: float = 0, dice_weight = 0):
         ual_coef = get_coef(iter_percentage, method)
 
         losses = []
@@ -245,14 +257,22 @@ class ZoomNet(BasicModelClass):
             resized_gts = cus_sample(gts, mode="size", factors=preds.shape[2:])
 
             sod_loss = F.binary_cross_entropy_with_logits(input=preds, target=resized_gts, reduction="mean")
+            sod_loss /= 2
             losses.append(sod_loss)
             loss_str.append(f"{name}_BCE: {sod_loss.item():.5f}")
+            
+            if (dice_weight > 0):
+                dice_loss = cal_dice(seg_logits=preds, seg_gts=resized_gts)
+                dice_loss *= dice_weight / 2
+                losses.append(dice_loss)
+                loss_str.append(f"{name}_Dice: {dice_loss.item():.5f}")
 
             ual_loss = cal_ual(seg_logits=preds, seg_gts=resized_gts)
             ual_loss *= ual_coef
             losses.append(ual_loss)
             loss_str.append(f"{name}_UAL_{ual_coef:.5f}: {ual_loss.item():.5f}")
         return sum(losses), " ".join(loss_str)
+
 
     def get_grouped_params(self):
         param_groups = {}
